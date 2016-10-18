@@ -1,0 +1,119 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'io/console'
+
+options = {}
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: db_restore [options] dbname"
+
+  opts.on("-h", "--host HOST", "Database server host") do |h|
+    options[:host] = h
+  end
+
+  opts.on("-p", "--port PORT", "Database server port") do |p|
+    options[:port] = p
+  end
+
+  opts.on("-u", "--user USER", "Database username (default: housing_su)") do |u|
+    options[:user] = u
+  end
+
+  opts.on("-P", "--password PASSWORD", "Database password (default: housing)") do |p|
+    options[:password] = p
+  end
+  
+  opts.on("-o", "--db-owner OWNER", "Database owner ( default: housing)") do |o|
+    options[:owner] = o
+  end
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+
+  opts.on("-f", "--dump-file FILE", "Dump file path") do |f|
+    options[:dump_file] = f
+  end
+  
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+opts.parse!
+
+
+
+def default_dump_file(db)
+  "/misc/dbsnapshots/#{db}.current.dump"
+end
+
+def password_prompt
+  print "Password: "
+  STDIN.noecho(&:gets).chomp
+end
+
+def cmd(command, tag = nil)
+  system(command)
+  tag ||= command
+  raise "\'#{tag}\' exited with non zero status" if $? != 0
+end
+
+
+def force_close_connections(db)
+  puts "Terminating postgresql connections"
+  cmd "echo \"SELECT pg_terminate_backend(pg_stat_activity.pid) FROM \
+      pg_stat_activity WHERE pg_stat_activity.datname = \'#{db}\';\" | psql postgres", "force_close_connections"
+end
+
+def dropdb(db)
+  puts "Dropping database #{db}"
+  system "dropdb #{db}"
+end
+
+def createdb(db, owner)
+  puts "Creating database #{db}"
+  cmd "createdb -O #{owner} #{db}"
+end
+
+def restoredb(db,dump_file)
+  puts "Restoring database #{db} from snapshot"
+  cmd "pg_restore -d #{db} #{dump_file}"
+end
+
+
+db = ARGV.first
+if not db
+  puts "ERROR: database name required"
+  puts opts
+  abort
+end
+
+dump_file = options[:dump_file] || default_dump_file(db)
+
+if options[:user]
+  user = options[:user]
+  pass = options[:password] || password_prompt
+else
+  user = 'housing_su'
+  pass = 'housing'
+end
+puts
+
+owner = options[:owner] || 'housing'
+
+ENV['PGUSER'] = user
+ENV['PGPASSWORD'] = pass
+ENV['PGHOSTADDR'] = options[:host] || "127.0.0.1"
+ENV['PGPORT'] = options[:port] || "5432"
+
+begin 
+  force_close_connections db
+  dropdb db
+  createdb db, owner
+  restoredb db, dump_file
+rescue => e
+  abort e.message
+end
+
+
