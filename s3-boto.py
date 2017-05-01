@@ -2,11 +2,11 @@ import boto3
 
 #from boto.s3.connection import S3Connection
 
-AWS_KEY = 'AKIAJ5FZ6FXYY52OCEDA'
-AWS_SECRET = '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'
+AWS_KEY = 'AKIAIC2N3DDBVK7BDNHA'
+AWS_SECRET = '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'
 REMOTE_FILE = 'images/arrow.png'
 LOCAL_FILE = 'arrow2.png'
-BUCKET = 'yairef'
+BUCKET = 'iref-report'
 
 s3 = boto3.resource('s3')
 client = boto3.client('s3', region_name='ap-southeast-1', api_version=None, use_ssl=True, verify=None, endpoint_url=None, aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET, aws_session_token=None, config=None)
