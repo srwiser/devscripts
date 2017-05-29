@@ -1,0 +1,12 @@
+#!/bin/bash
+awk '
+    $1 == "Host" { 
+        host = $1 ": " $2; 
+        next; 
+    } 
+    $1 == "User" { 
+        $1 = ""; 
+        sub( /^[[:space:]]*/, "" ); 
+        printf "%s - User: %s\n", host, $0;
+    }
+' ~/.ssh/config
