@@ -1,0 +1,1 @@
+db.isMaster().secondary
