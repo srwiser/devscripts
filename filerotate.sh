@@ -16,7 +16,7 @@ function list_files {
 }
 
 function delete_files {
-        rm $1
+        sudo rm $1
 }
 
 if [ $ACTION == "list" ];
