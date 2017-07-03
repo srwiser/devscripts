@@ -4,9 +4,12 @@ NODE1=$1
 NODE2=$2
 USERNAME=$3
 PASSWORD=$4
-LOGPATH="/home/ubuntu/mongo/logs"
-if [ -d $LOGPATH ];then
-  mkdir -p $LOGPATH
+LOGPATH="$PWD/logs"
+mkdir -p $LOGPATH
+
+if [[ -z $1 || -z $2 || -z $3 || -z $4 ]];then
+        echo "Usage: $0 prim_ip sec_ip super_user_name super_user_password"
+        exit 1;
 fi
 
 adddate() {
@@ -14,8 +17,7 @@ adddate() {
         echo "$(date) $line"
     done
 }
-
-ISSEC=`mongo --host $NODE1 -u $USERNAME -p $PASSWORD --authenticationDatabase admin < /home/ubuntu/scripts/checkIfMaster.js | sed -n '3p'`
+ISSEC=`mongo --host $NODE1 -u $USERNAME -p $PASSWORD --authenticationDatabase admin < $PWD/checkIfMaster.js | sed -n '3p'`
 if [ $ISSEC == "true" ]
 then
   MONGO_PRI=$NODE2
@@ -27,5 +29,5 @@ fi
 echo $ISSEC
 
 ## Log Replication lag
-mongo --host $MONGO_PRI -u $USERNAME -p $PASSWORD --authenticationDatabase admin < /home/ubuntu/scripts/checklag.js | sed -n '5p' | adddate >> $LOGPATH/replag.log
-
+mongo --host $MONGO_PRI -u $USERNAME -p $PASSWORD --authenticationDatabase admin < $PWD/checkreplicationlag.js | awk 'NR==3 {print $2}'+'NR==5 {print $1" "$2}'+'NR==6 {print $2}'+'NR==8 {print $1" "$2}' | adddate >> $LOGPATH/replag.log
+printf "\n" >> $LOGPATH/replag.log
