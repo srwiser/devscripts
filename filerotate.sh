@@ -1,18 +1,19 @@
 #!/bin/bash
 
 if [[ -z "$1" || -z "$2" || -z "$3" ]]; then
-    echo "Usage: $0 backup_dir days_to_rotate delete/list"
+    echo "Usage: $0 backup_dir days_to_rotate file_ext delete/list"
     exit 1
 fi
 
 ## Delete backup files on local which are older than x days
 BACKUP_DIR=$1
 DAYS=$2
-ACTION=$3
+EXT=$3
+ACTION=$4
 
 
 function list_files {
-        find $1 -mtime +$2 -exec ls {} \;
+        find $1 -mtime +$2 -exec ls {} \;|grep -F ".$EXT"
 }
 
 function delete_files {
