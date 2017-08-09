@@ -2,15 +2,15 @@
 # A simple Azure Storage example script
 
 export AZURE_STORAGE_ACCOUNT="storage_acc_name"
-export AZURE_STORAGE_ACCESS_KEY="storage_acc_key"
+export AZURE_STORAGE_ACCESS_KEY="storage_access_key"
 
-export container_name="blob_container_name"
+export container_name="samplecontainer"
 echo "Creating the container..."
 az storage container create --name $container_name
 
-ext="csv"
-data_path="/data/dump/csv/$container_name"
-FILES=`ls $data_path/ | grep -F ".$ext"`
+export ext="json"
+export data_path="/path/datafiles" ##dataFile path
+export FILES=`ls $data_path/ | grep -F ".$ext"`
 echo "$FILES\n"
 
 if [ ! -z "$FILES" -a "$FILES" != " "  ]; then
@@ -21,8 +21,15 @@ if [ ! -z "$FILES" -a "$FILES" != " "  ]; then
                 export file_to_upload="$data_path/$filename"
                 export destination_file="$data_path/$filename"
                 echo "Uploading the file..."
-                az storage blob upload --container-name $container_name --file $file_to_upload --name $blob_name
-                echo "Downloading the file..."
+                az storage blob exists --container-name $container_name --name $blob_name | grep -iF '"exists": true'
+                SUCCESS=`echo $?`
+                if [ "$SUCCESS" == "0" ];then
+                        echo "File already exist"
+                else
+                        echo "Uploading the file..."
+                        az storage blob upload --container-name $container_name --file $file_to_upload --name $blob_name
+                fi
+                #echo "Downloading the file..."
                 #az storage blob download --container-name $container_name --name $blob_name --file $destination_file --output table
         done
 else
