@@ -2,7 +2,7 @@
 # $COMMAND is the command used to create the reverse ssh tunnel
 SSH_PORT="22"
 REMOTE_HOST="xx.xx.xx.xx"
-USER_NAME="analytics"
+USER_NAME="sample_user"
 REMOTE_PORT="3306"
 LOCAL_PORT="3307"
 COMMAND="ssh -p $SSH_PORT -f -N -L $LOCAL_PORT:127.0.0.1:$REMOTE_PORT $USER_NAME@$REMOTE_HOST"
