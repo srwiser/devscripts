@@ -6,9 +6,9 @@
 # change these variables to what you need
 MYSQLROOT=root
 MYSQLPASS=""
-S3BUCKET=iref-backup
-FILENAME=popertyforum
-DATABASE='popertyforum'
+S3BUCKET="bucket_name"
+FILENAME="file_name"
+DATABASE='db_name'
 # the following line prefixes the backups with the defined directory. it must be blank or end with a /
 S3PATH=database/
 # when running via cron, the PATHs MIGHT be different. If you have a custom/manual MYSQL install, you should set this manually like MYSQLDUMPPATH=/usr/local/mysql/bin/
