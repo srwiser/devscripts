@@ -1,5 +1,5 @@
-modules = open('login_new.php','r')
-modules1 = open('login_old.php','r')
+modules = open('/Users/srastogi/Desktop/old-jenkins-plugin-list.txt','r')
+modules1 = open('/Users/srastogi/Desktop/new-jenkins-plugin-list','r')
 
 modules_list = [];
 modules1_list = [];
